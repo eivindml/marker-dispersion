@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "cssnano": "^4.1.10"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
+  },
+  "scripts": {
+    "start": "parcel index.html"
+  }
+}

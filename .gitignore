@@ -1,0 +1,6 @@
+node_modules/
+.nova/
+.git/
+.cache/
+dist/
+sample.html
