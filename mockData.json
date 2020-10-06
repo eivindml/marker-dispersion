@@ -1,0 +1,28 @@
+{
+  "locations": [
+    {
+      "title": "Moss",
+      "id": 0,
+      "lng": 10.65,
+      "lat": 59.43
+    },
+    {
+      "title": "Nesoddtangen",
+      "id": 1,
+      "lng":  10.66308,
+      "lat": 59.86244,
+    },
+    {
+      "title": "Copenhagen",
+      "id": 2,
+      "lng": 12.55,
+      "lat": 55.66
+    },
+    {
+      "title": "Oslo",
+      "id": 3,
+      "lng": 10.75,
+      "lat": 59.9
+    }
+  ]
+}
