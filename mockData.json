@@ -1,5 +1,5 @@
 {
-  "locations": [
+  "features": [
     {
       "title": "Moss",
       "id": 0,
@@ -9,8 +9,8 @@
     {
       "title": "Nesoddtangen",
       "id": 1,
-      "lng":  10.66308,
-      "lat": 59.86244,
+      "lng": 10.66308,
+      "lat": 59.86244
     },
     {
       "title": "Copenhagen",

@@ -1,4 +1,4 @@
-interface Marker {
+interface Node {
   title: string;
   id: number;
   lng: number;
@@ -10,4 +10,4 @@ interface Marker {
   size: Array<number>;
 }
 
-export default Marker;
+export default Node;
