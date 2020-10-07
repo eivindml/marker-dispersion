@@ -27,14 +27,12 @@ class MapController {
     this.callback = callback;
     let self = this;
     this.map.on("load", () => {
-      console.log("onLoaded");
       self.callback();
       self.initFeatures();
     });
   }
 
   initFeatures() {
-    console.log("Init featues");
     this.map.addSource(this.sourceId, this.getSource(this.features));
     this.map.addLayer(this.getLayer(this.sourceId));
   }
