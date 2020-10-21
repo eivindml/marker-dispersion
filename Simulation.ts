@@ -5,10 +5,6 @@ import Node from "./Node";
 import Map from "./Map";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
 
-var collisionForce = rectCollide().size(function (d: Node) {
-  return d.size;
-});
-
 class Simulation {
   nodes: Array<Node>;
   sim: d3.Simulation<
@@ -33,7 +29,7 @@ class Simulation {
         y: coordinates.y,
         previousX: coordinates.x,
         previousY: coordinates.y,
-        size: [150, 160],
+        size: [feature.title.length * 10, 18],
       };
     });
   }
@@ -44,26 +40,7 @@ class Simulation {
         // Setup a physics based simulation
         .forceSimulation()
         // Add a collision detection force to the simulation.
-        // The nodes won't overlap with the given radius
-        .force(
-          "x",
-          d3
-            .forceX()
-            .x(function (d: any) {
-              return d.previousX;
-            })
-            .strength(1)
-        )
-        .force(
-          "y",
-          d3
-            .forceY()
-            .y(function (d: any) {
-              return d.previousY;
-            })
-            .strength(1)
-        )
-        .force("collision", collisionForce)
+        .force("collision", rectCollide())
         .stop()
     );
   }
@@ -84,7 +61,7 @@ class Simulation {
         y: coordinates.y,
         previousX: coordinates.x,
         previousY: coordinates.y,
-        size: [feature.properties.title.length * 10, 30],
+        size: [feature.properties.title.length * 10, 18],
       };
     });
 

@@ -1,117 +1,78 @@
-import * as d3 from "d3";
-
-function rectCollide() {
-  var nodes, sizes, masses;
-  var size = constant([0, 0]);
-  var strength = 1;
-  var iterations = 1;
+import Node from "./Node";
+import { quadtree, QuadtreeLeaf } from "d3";
+/** Collision detection with quadtree.
+ *
+ * Will compare node to other nodes, using a quadtree,
+ * and move them apart of the overlap. If biggest overlap
+ * is in x direction, move apart in y direction, or visa versa.
+ */
+function forceCollide() {
+  let nodes: Array<Node>;
 
   function force() {
-    var node, size, mass, xi, yi;
-    var i = -1;
-    while (++i < iterations) {
-      iterate();
-    }
+    // for (var i = 0; i < 10; i++) {
+    const q = quadtree<Node>()
+      .x((d) => d.x)
+      .y((d) => d.y)
+      .addAll(nodes);
+    for (const node of nodes) {
+      const l1 = node.x;
+      const r1 = node.x + node.size[0];
+      const t1 = node.y;
+      const b1 = node.y + node.size[1];
 
-    function iterate() {
-      var j = -1;
-      var tree = d3.quadtree(nodes, xCenter, yCenter).visitAfter(prepare);
+      /**
+       * visit each squares in the quadtree x1 y1 x2 y2
+       * constitutes the coordinates of the square want
+       * to check if each square is a leaf node (has data prop)
+       */
+      q.visit((visited, x1, y1, x2, y2) => {
+        /** Is a leaf node, and is not checking against itself */
+        if (isLeafNode(visited) && visited.data.id !== node.id) {
+          const l2 = visited.data.x;
+          const r2 = visited.data.x + visited.data.size[0];
+          const t2 = visited.data.y;
+          const b2 = visited.data.y + node.size[1];
 
-      while (++j < nodes.length) {
-        node = nodes[j];
-        size = sizes[j];
-        mass = masses[j];
-        xi = xCenter(node);
-        yi = yCenter(node);
+          /** We have a collision */
+          if (l2 < r1 && l1 < r2 && t1 < b2 && t2 < b1) {
+            /** Calculate intersecting rectangle */
+            const xLeft = Math.max(l1, l2);
+            const yTop = Math.max(t1, t2);
+            const xRight = Math.min(r1, r2);
+            const yBottom = Math.min(b1, b2);
 
-        tree.visit(apply);
-      }
-    }
+            /** Move the rectangles apart, so that they don't overlap anymore. 🙅🏼 */
 
-    function apply(quad, x0, y0, x1, y1) {
-      var data = quad.data;
-      var xSize = (size[0] + quad.size[0]) / 2;
-      var ySize = (size[1] + quad.size[1]) / 2;
-      if (data) {
-        if (data.index <= node.index) {
-          return;
-        }
-
-        var x = xi - xCenter(data);
-        var y = yi - yCenter(data);
-        var xd = Math.abs(x) - xSize;
-        var yd = Math.abs(y) - ySize;
-
-        if (xd < 0 && yd < 0) {
-          var l = Math.sqrt(x * x + y * y);
-          var m = masses[data.index] / (mass + masses[data.index]);
-
-          if (Math.abs(xd) < Math.abs(yd)) {
-            node.vx -= (x *= (xd / l) * strength) * m;
-            data.vx += x * (1 - m);
-          } else {
-            node.vy -= (y *= (yd / l) * strength) * m;
-            data.vy += y * (1 - m);
+            /* Find which direction has biggest overlap */
+            if (xRight - xLeft > yBottom - yTop) {
+              /** Biggest in x direction (move y) */
+              const dy = (yBottom - yTop) / 2;
+              node.y -= dy;
+              visited.data.y += dy;
+            } else {
+              /** Biggest in y direction (move x) */
+              const dx = (xRight - xLeft) / 2;
+              node.x -= dx;
+              visited.data.x += dx;
+            }
           }
         }
-      }
-
-      return (
-        x0 > xi + xSize || y0 > yi + ySize || x1 < xi - xSize || y1 < yi - ySize
-      );
-    }
-
-    function prepare(quad) {
-      if (quad.data) {
-        quad.size = sizes[quad.data.index];
-      } else {
-        quad.size = [0, 0];
-        var i = -1;
-        while (++i < 4) {
-          if (quad[i] && quad[i].size) {
-            quad.size[0] = Math.max(quad.size[0], quad[i].size[0]);
-            quad.size[1] = Math.max(quad.size[1], quad[i].size[1]);
-          }
-        }
-      }
+        return x1 > r1 || x2 < l1 || y1 > b1 || y2 < t1;
+      });
     }
   }
 
-  function xCenter(d) {
-    return d.x + d.vx + sizes[d.index][0] / 2;
-  }
-  function yCenter(d) {
-    return d.y + d.vy + sizes[d.index][1] / 2;
-  }
-
-  force.initialize = function (_) {
-    sizes = (nodes = _).map(size);
-    masses = sizes.map(function (d) {
-      return d[0] * d[1];
-    });
-  };
-
-  force.size = function (_) {
-    return arguments.length
-      ? ((size = typeof _ === "function" ? _ : constant(_)), force)
-      : size;
-  };
-
-  force.strength = function (_) {
-    return arguments.length ? ((strength = +_), force) : strength;
-  };
-
-  force.iterations = function (_) {
-    return arguments.length ? ((iterations = +_), force) : iterations;
-  };
+  force.initialize = (_: any) => (nodes = _);
 
   return force;
 }
 
-function constant(_) {
-  return function () {
-    return _;
-  };
+/**
+ * Type Guard!
+ */
+function isLeafNode(arg: any): arg is QuadtreeLeaf<Node> {
+  return arg.data !== undefined;
 }
 
-export default rectCollide;
+export default forceCollide;

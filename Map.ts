@@ -100,9 +100,7 @@ class MapController {
     if (nodes.length === 0) return;
 
     var textSize = this.map.getLayoutProperty("ports", "text-size");
-    const iconSize = this.map.getLayoutProperty("ports", "icon-size");
     const textOffsets = this.map.getLayoutProperty("ports", "text-offset");
-    const iconOffsets = this.map.getLayoutProperty("ports", "icon-offset");
 
     let start;
     let self = this;
@@ -116,27 +114,7 @@ class MapController {
         stops: nodes.map((node: Node) => {
           const yDelta = (node.y - node.previousY) / textSize;
           const xDelta = (node.x - node.previousX) / textSize;
-          const offset = textOffsets?.stops?.find((stop) => {
-            return stop[0] === node.id;
-          });
-          if (offset) {
-            const o = offset[1];
-            const x = getTween(o[0], xDelta, elapsed);
-            const y = getTween(o[1], yDelta, elapsed);
-            return [node.id, [x, y]];
-          }
-          return [node.id, [xDelta, yDelta]];
-        }),
-        default: [0, 0],
-      });
-
-      self.map.setLayoutProperty("ports", "icon-offset", {
-        property: "id",
-        type: "categorical",
-        stops: nodes.map((node) => {
-          const yDelta = (node.y - node.previousY) / iconSize;
-          const xDelta = (node.x - node.previousX) / iconSize;
-          const offset = iconOffsets?.stops?.find((stop) => {
+          const offset = textOffsets?.stops?.find((stop: any) => {
             return stop[0] === node.id;
           });
           if (offset) {
