@@ -1,3 +1,8 @@
+export interface NodeSize {
+  width: number;
+  height: number;
+}
+
 interface Node {
   title: string;
   id: number;
@@ -7,7 +12,7 @@ interface Node {
   y: number;
   previousX: number;
   previousY: number;
-  size: Array<number>;
+  size: NodeSize;
 }
 
 export default Node;

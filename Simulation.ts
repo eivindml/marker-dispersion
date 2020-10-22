@@ -4,6 +4,7 @@ import Feature from "./Feature";
 import Node from "./Node";
 import Map from "./Map";
 import { MapboxGeoJSONFeature } from "mapbox-gl";
+import {getTextSize} from "./utils";
 
 class Simulation {
   nodes: Array<Node>;
@@ -29,7 +30,7 @@ class Simulation {
         y: coordinates.y,
         previousX: coordinates.x,
         previousY: coordinates.y,
-        size: [feature.title.length * 10, 18],
+        size: getTextSize(feature.title),
       };
     });
   }
@@ -41,6 +42,8 @@ class Simulation {
         .forceSimulation()
         // Add a collision detection force to the simulation.
         .force("collision", rectCollide())
+        .force("x", d3.forceX<Node>().x(d => d.lng))
+        .force("y", d3.forceY<Node>().y(d => d.lat))
         .stop()
     );
   }
@@ -61,14 +64,12 @@ class Simulation {
         y: coordinates.y,
         previousX: coordinates.x,
         previousY: coordinates.y,
-        size: [feature.properties.title.length * 10, 18],
+        size: getTextSize(feature.properties.title),
       };
     });
 
     this.sim.nodes(this.nodes);
-    for (var i = 0; i < 120; i++) {
-      this.sim.tick();
-    }
+    this.sim.tick(120);
 
     return this.nodes;
   }
